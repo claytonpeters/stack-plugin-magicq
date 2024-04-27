@@ -1,0 +1,56 @@
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# The executable for this application
+stack
+runstack
+
+# We're using CMake, so don't import the Makefile or cache items
+Makefile
+CMakeCache.txt
+cmake_install.cmake
+CMakeFiles/*
+.cmake/*
+
+# VScode bits
+.vscode/*
+compile_commands.json
+
+# Temporary files
+*~
+*.swp
+
+# Ignore any test show files
+*.stack
+
+# Ignore our generated resources file
+src/*resources.c
+
+# Backup Glade files
+ui/#*.ui#
