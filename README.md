@@ -1,6 +1,6 @@
 # Stack MagicQ Plugin
 
-This is a plugin for [Stack](https://github.com/claytonpeters/stacl) that
+This is a plugin for [Stack](https://github.com/claytonpeters/stack) that
 provides a cue type for interacting with Chamsys MagicQ software. The plugin
 relies on OSC being available from MagicQwhich is only available for use in the
 full version of MagicQ (i.e. not when in "Demo Mode" as is the normal for MagicQ
@@ -25,6 +25,18 @@ their development packages) to compile this plugin:
 * gtk3
 * glib2
 * jsoncpp
+* [Stack](https://github.com/claytonpeters/stack) itself
+
+The CMake scripts assumes you have a clone of the Stack Git repository at
+`../stack`, relative to the checkout of this plugin. If you've got it elsewhere
+checked out, change `CMakeLists.txt` and alter the line:
+
+```cmake
+include_directories("${PROJECT_SOURCE_DIR}/../stack/src")
+```
+
+Change this to point to the `src` directory inside your clone of the Stack
+repo.
 
 Compilation (once you have the correct depedencies installed), should be as
 simple as:
