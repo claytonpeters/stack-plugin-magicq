@@ -840,7 +840,7 @@ const char *stack_magicq_cue_get_field(StackCue *cue, const char *field)
 	else if (strcmp(field, "jump_target") == 0)
 	{
 		char *jump_target = NULL;
-		stack_property_get_string(stack_cue_get_property(cue, "jump_target"), STACK_PROPERTY_VERSION_DEFINED, &jump_target);
+		stack_property_get_string(stack_cue_get_property(cue, "jump_cue_id"), STACK_PROPERTY_VERSION_DEFINED, &jump_target);
 		return jump_target;
 	}
 
