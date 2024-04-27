@@ -354,27 +354,30 @@ extern "C" void mcp_action_toggled(GtkToggleButton *toggle_button, gpointer user
 	stack_property_set_bool(stack_cue_get_property(cue, property_name), STACK_PROPERTY_VERSION_DEFINED, active);
 }
 
-extern "C" void mcp_playback_changed(GtkWidget *widget, gpointer user_data)
+extern "C" gboolean mcp_playback_changed(GtkWidget *widget, gpointer user_data)
 {
 	StackCue *cue = STACK_CUE(((StackAppWindow*)gtk_widget_get_toplevel(widget))->selected_cue);
 	const gchar *value = gtk_entry_get_text(GTK_ENTRY(widget));
 	int16_t playback = (int16_t)atoi(value);
 	stack_property_set_int16(stack_cue_get_property(cue, "playback"), STACK_PROPERTY_VERSION_DEFINED, playback);
+	return false;
 }
 
-extern "C" void mcp_level_changed(GtkWidget *widget, gpointer user_data)
+extern "C" gboolean mcp_level_changed(GtkWidget *widget, gpointer user_data)
 {
 	StackCue *cue = STACK_CUE(((StackAppWindow*)gtk_widget_get_toplevel(widget))->selected_cue);
 	const gchar *value = gtk_entry_get_text(GTK_ENTRY(widget));
 	int16_t level = (int16_t)atoi(value);
 	stack_property_set_int16(stack_cue_get_property(cue, "level"), STACK_PROPERTY_VERSION_DEFINED, level);
+	return false;
 }
 
-extern "C" void mcp_jump_cue_id_changed(GtkWidget *widget, gpointer user_data)
+extern "C" gboolean mcp_jump_cue_id_changed(GtkWidget *widget, gpointer user_data)
 {
 	StackCue *cue = STACK_CUE(((StackAppWindow*)gtk_widget_get_toplevel(widget))->selected_cue);
 	const gchar *value = gtk_entry_get_text(GTK_ENTRY(widget));
 	stack_property_set_string(stack_cue_get_property(cue, "jump_cue_id"), STACK_PROPERTY_VERSION_DEFINED, value);
+	return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -818,6 +821,32 @@ void stack_magicq_cue_get_error(StackCue *cue, char *message, size_t size)
 	strncpy(message, "", size);
 }
 
+const char *stack_magicq_cue_get_field(StackCue *cue, const char *field)
+{
+	if (strcmp(field, "playback") == 0)
+	{
+		int16_t playback = 0;
+		stack_property_get_int16(stack_cue_get_property(cue, "playback"), STACK_PROPERTY_VERSION_DEFINED, &playback);
+		snprintf(STACK_MAGICQ_CUE(cue)->playback_string, 8, "%d", playback);
+		return STACK_MAGICQ_CUE(cue)->playback_string;
+	}
+	else if (strcmp(field, "level") == 0)
+	{
+		int16_t level = 0;
+		stack_property_get_int16(stack_cue_get_property(cue, "level"), STACK_PROPERTY_VERSION_DEFINED, &level);
+		snprintf(STACK_MAGICQ_CUE(cue)->level_string, 8, "%d", level);
+		return STACK_MAGICQ_CUE(cue)->level_string;
+	}
+	else if (strcmp(field, "jump_target") == 0)
+	{
+		char *jump_target = NULL;
+		stack_property_get_string(stack_cue_get_property(cue, "jump_target"), STACK_PROPERTY_VERSION_DEFINED, &jump_target);
+		return jump_target;
+	}
+
+	return stack_cue_get_field_base(cue, field);
+}
+
 /// Returns the icon for a cue
 /// @param cue The cue to get the icon of
 GdkPixbuf *stack_magicq_cue_get_icon(StackCue *cue)
@@ -835,7 +864,7 @@ void stack_magicq_cue_register()
 	icon = gdk_pixbuf_new_from_resource("/org/stack/icons/stackmagicqcue.png", NULL);
 
 	// Register built in cue types
-	StackCueClass* magicq_cue_class = new StackCueClass{ "StackMagicQCue", "StackCue", "MagicQ Cue", stack_magicq_cue_create, stack_magicq_cue_destroy, stack_magicq_cue_play, NULL, NULL, stack_magicq_cue_pulse, stack_magicq_cue_set_tabs, stack_magicq_cue_unset_tabs, stack_magicq_cue_to_json, stack_magicq_cue_free_json, stack_magicq_cue_from_json, stack_magicq_cue_get_error, NULL, NULL, NULL, stack_magicq_cue_get_icon, NULL, NULL };
+	StackCueClass* magicq_cue_class = new StackCueClass{ "StackMagicQCue", "StackCue", "MagicQ Cue", stack_magicq_cue_create, stack_magicq_cue_destroy, stack_magicq_cue_play, NULL, NULL, stack_magicq_cue_pulse, stack_magicq_cue_set_tabs, stack_magicq_cue_unset_tabs, stack_magicq_cue_to_json, stack_magicq_cue_free_json, stack_magicq_cue_from_json, stack_magicq_cue_get_error, NULL, NULL, stack_magicq_cue_get_field, stack_magicq_cue_get_icon, NULL, NULL };
 	stack_register_cue_class(magicq_cue_class);
 }
 

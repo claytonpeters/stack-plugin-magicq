@@ -16,6 +16,10 @@ struct StackMagicQCue
 
 	// The UDP socket
 	int sock;
+
+	// Buffers for get_field
+	char playback_string[8];
+	char level_string[8];
 };
 
 // Functions: MagicQ cue functions
