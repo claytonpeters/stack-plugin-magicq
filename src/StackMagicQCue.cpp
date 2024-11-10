@@ -2,12 +2,12 @@
 #include "StackApp.h"
 #include "StackLog.h"
 #include "StackMagicQCue.h"
-#include "StackGtkEntryHelper.h"
+#include "StackGtkHelper.h"
+#include "StackJson.h"
 #include <cstring>
 #include <cstdlib>
 #include <string>
 #include <cmath>
-#include <json/json.h>
 #include <sys/wait.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -699,8 +699,8 @@ static char *stack_magicq_cue_to_json(StackCue *cue)
 
 	// Write out JSON string and return (to be free'd by
 	// stack_magicq_cue_free_json)
-	Json::FastWriter writer;
-	return strdup(writer.write(cue_root).c_str());
+	Json::StreamWriterBuilder builder;
+	return strdup(Json::writeString(builder, cue_root).c_str());
 }
 
 /// Frees JSON strings as returned by stack_magicq_cue_to_json
@@ -712,11 +712,9 @@ static void stack_magicq_cue_free_json(StackCue *cue, char *json_data)
 /// Re-initialises this cue from JSON Data
 void stack_magicq_cue_from_json(StackCue *cue, const char *json_data)
 {
-	Json::Value cue_root;
-	Json::Reader reader;
-
 	// Parse JSON data
-	reader.parse(json_data, json_data + strlen(json_data), cue_root, false);
+	Json::Value cue_root;
+	stack_json_read_string(json_data, &cue_root);
 
 	// Get the data that's pertinent to us
 	if (!cue_root.isMember("StackMagicQCue"))
@@ -777,7 +775,7 @@ void stack_magicq_cue_from_json(StackCue *cue, const char *json_data)
 }
 
 /// Gets the error message for the cue
-void stack_magicq_cue_get_error(StackCue *cue, char *message, size_t size)
+bool stack_magicq_cue_get_error(StackCue *cue, char *message, size_t size)
 {
 	int16_t playback = 0, level = 0;
 	char buffer[64];
@@ -800,25 +798,26 @@ void stack_magicq_cue_get_error(StackCue *cue, char *message, size_t size)
 	if (playback == 0)
 	{
 		snprintf(message, size, "No playback chosen");
-		return;
+		return true;
 	}
 
 	// We must have an action
 	if (!action_activate && !action_level && !action_go && !action_stop && !action_jump && !action_release)
 	{
 		snprintf(message, size, "No actions selected");
-		return;
+		return true;
 	}
 
 	// If we're jumping, we must have a cue number
 	if (action_jump && strlen(cue_id) == 0)
 	{
 		snprintf(message, size, "No cue chosen to jump to");
-		return;
+		return true;
 	}
 
-	// No error
+	// Default condition: no error
 	strncpy(message, "", size);
+	return false;
 }
 
 const char *stack_magicq_cue_get_field(StackCue *cue, const char *field)
